@@ -1,7 +1,7 @@
 import cv2 
   
 # path 
-path = r'/Users/sayo/Code/Supa-Radio/pictures/mercury.jpeg'
+path = r'./pictures/mercury.jpeg'
   
 # Reading an image in default mode
 image = cv2.imread(path)
