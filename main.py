@@ -58,12 +58,17 @@ def place(bgimg, overlay, x, y, alpha):
     # print("y: {}".format(y))
     # print("h: {}".format(h))
     # print("w: {}".format(w))
-    
-    for i in range(w):
-        for j in range(h):
-                if x+i < bgw and y+j < bgh:
-                    new_value = alpha[j][i][0]*overlay[j][i] + (1-alpha[j][i][0])*bgimg[y + j][x + i]
-                    bgimg[y + j][x + i] = new_value
+    # print(bgimg[y:y+h,x:x+w].shape)
+    a = np.multiply(alpha,overlay)
+    b = np.multiply(1-alpha,bgimg[y:y+h,x:x+w])
+    overlay_w_alpha = np.add(a,b)
+    bgimg[y:y+h,x:x+w] = overlay_w_alpha
+    # old looping to understand what above is doing
+    # for i in range(w):
+    #     for j in range(h):
+    #             if x+i < bgw and y+j < bgh:
+    #                 new_value = alpha[j][i][0]*overlay[j][i] + (1-alpha[j][i][0])*bgimg[y + j][x + i]
+    #                 bgimg[y + j][x + i] = new_value
                 # else:
                 #     print("x + i : {}, y + j: {}".format(x+i, y +j))
 
@@ -122,13 +127,14 @@ def make_vinyl(img, size):
 
 def main():
     blur = 20
+    vinyl_size = 520
     # making alpha channel for glow
-    glow = make_vinyl(image, 520)
+    glow = make_vinyl(image, vinyl_size)
     glow = cv2.copyMakeBorder(glow, blur, blur, blur, blur, cv2.BORDER_CONSTANT)
     glow_alpha = get_alpha(glow)
     glow_alpha = cv2.blur(glow_alpha, (blur,blur))
     # change glow back to full image, not circle cropped
-    glow = cv2.resize(image,(520,520))
+    glow = cv2.resize(image,(vinyl_size,vinyl_size))
     glow = cv2.copyMakeBorder(glow, blur, blur, blur, blur, cv2.BORDER_REFLECT)
     glow = cv2.blur(glow, (blur,blur))
     glow = brighten(glow, 40, 40)
@@ -138,7 +144,7 @@ def main():
     
     vinyl = make_vinyl(image, 500)
 
-    vinyl_with_glow = overlay(glow, vinyl, 520,520,10, get_alpha(vinyl))
+    vinyl_with_glow = overlay(glow, vinyl, vinyl_size,vinyl_size,10, get_alpha(vinyl))
     vinyl_with_glow = cv2.copyMakeBorder(vinyl_with_glow, blur, blur, blur, blur, cv2.BORDER_REFLECT)
     # 
 
@@ -152,11 +158,33 @@ def main():
     out = cv2.VideoWriter('bahbahbahbah.mp4',cv2.VideoWriter_fourcc(*'DIVX'), 24, size)
     
     rotamt = 0
+    grow = 1
+    # vinyl_with_glow = cv2.resize(vinyl_with_glow, (200,200))
+
+    # cv2.imshow(window_name,vinyl_with_glow)
+    # cv2.waitKey(0)
+    # cv2.destroyAllWindows()
+
+    res_vinyl = cv2.resize(vinyl_with_glow, (1,1))
+    res_alpha = cv2.resize(glow_alpha, (1,1))
+
+
     for i in range(video_len * fps):
         print("frame:", i)
         rotamt -= .5
-        rot = rotate(vinyl_with_glow, rotamt, reshape=False)
-        composite = overlay(image3, rot, 1920,1080,200, glow_alpha)
+        res_vinyl = rotate(vinyl_with_glow, rotamt, reshape=False)
+        res_alpha = glow_alpha
+        if i <= 24:
+            res_vinyl = cv2.resize(res_vinyl,(1,1))
+            res_alpha = cv2.resize(glow_alpha, (1,1))
+
+        if i > 24 and grow <= vinyl_with_glow.shape[0]:
+            print(vinyl_with_glow.shape[0])
+            print(grow)
+            res_vinyl = cv2.resize(res_vinyl,(grow, grow))
+            res_alpha = cv2.resize(glow_alpha, (grow, grow))
+            grow += 15
+        composite = overlay(image3, res_vinyl, 1920,1080,200, res_alpha)
         out.write(composite)
         # cv2.imshow(window_name, composite)
         # cv2.waitKey(0)
