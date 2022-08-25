@@ -18,6 +18,24 @@ image3 = cv2.imread(path3)
 fps = 24
 video_len = 30
 
+def brighten(img, bvalue, svalue):
+    hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+
+    h, s, v = cv2.split(hsv)
+    v = cv2.add(v,bvalue)
+    v[v > 255] = 255
+    v[v < 0] = 0
+
+    s = cv2.add(s,svalue)
+    s[s > 255] = 255
+    s[s < 0] = 0
+
+    final_hsv = cv2.merge((h, s, v))
+    
+    img = cv2.cvtColor(final_hsv, cv2.COLOR_HSV2BGR)
+
+    return img
+
 def get_alpha(img):
     h, w ,c = img.shape
     alpha = np.empty(img.shape)
@@ -34,12 +52,12 @@ def get_alpha(img):
 def place(bgimg, overlay, x, y, alpha):
     h, w, c = overlay.shape
     bgh, bgw, bgc = bgimg.shape
-    print("bgh: {}".format(bgh))
-    print("bgw: {}".format(bgw))
-    print("x: {}".format(x))
-    print("y: {}".format(y))
-    print("h: {}".format(h))
-    print("w: {}".format(w))
+    # print("bgh: {}".format(bgh))
+    # print("bgw: {}".format(bgw))
+    # print("x: {}".format(x))
+    # print("y: {}".format(y))
+    # print("h: {}".format(h))
+    # print("w: {}".format(w))
     
     for i in range(w):
         for j in range(h):
@@ -103,33 +121,53 @@ def make_vinyl(img, size):
 
 
 def main():
-    #adding glow to the vinyl
+    blur = 20
+    # making alpha channel for glow
     glow = make_vinyl(image, 520)
+    glow = cv2.copyMakeBorder(glow, blur, blur, blur, blur, cv2.BORDER_CONSTANT)
     glow_alpha = get_alpha(glow)
-    glow_alpha = cv2.blur(glow_alpha, (15,15))
+    glow_alpha = cv2.blur(glow_alpha, (blur,blur))
+    # change glow back to full image, not circle cropped
+    glow = cv2.resize(image,(520,520))
+    glow = cv2.copyMakeBorder(glow, blur, blur, blur, blur, cv2.BORDER_REFLECT)
+    glow = cv2.blur(glow, (blur,blur))
+    glow = brighten(glow, 40, 40)
 
-    glow = cv2.blur(glow, (15,15))
+    
+
+    
     vinyl = make_vinyl(image, 500)
 
-    composite = overlay(image3, glow, 1920,1080,200, glow_alpha)
-    composite = overlay(composite, vinyl, 1920,1080,200, get_alpha(vinyl))
+    vinyl_with_glow = overlay(glow, vinyl, 520,520,10, get_alpha(vinyl))
+    vinyl_with_glow = cv2.copyMakeBorder(vinyl_with_glow, blur, blur, blur, blur, cv2.BORDER_REFLECT)
+    # 
 
             
 
     # Window name in which image is displayed
     window_name = 'image'
-    # for i in range(video_len * fps):
-        #rotate - .5
-        # rot = rotate(rot, -30, reshape=False)
-        # cv2.imshow(window_name, overlay(image3, rot, 1920, 1080, 200))
+    size = (1920,1080)
+
+    rot = vinyl_with_glow
+    out = cv2.VideoWriter('bahbahbahbah.mp4',cv2.VideoWriter_fourcc(*'DIVX'), 24, size)
+    
+    rotamt = 0
+    for i in range(video_len * fps):
+        print("frame:", i)
+        rotamt -= .5
+        rot = rotate(vinyl_with_glow, rotamt, reshape=False)
+        composite = overlay(image3, rot, 1920,1080,200, glow_alpha)
+        out.write(composite)
+        # cv2.imshow(window_name, composite)
         # cv2.waitKey(0)
-        #waits for user to press any key 
-        #(this is necessary to avoid Python kernel form crashing)
+        #closing all open windows
+    out.release 
+    # cv2.destroyAllWindows()
     # composite = overlay(image3, composite, 1920, 1080, 200)
-    cv2.imshow(window_name, composite)#make_vinyl(image, 500), 1920, 1080, 200
-    cv2.waitKey(0)
-        #closing all open windows 
-    cv2.destroyAllWindows() 
+    # cv2.imshow(window_name, composite)
+    # cv2.waitKey(0)
+    #     #closing all open windows 
+    # cv2.destroyAllWindows() 
 
 main()
 # Using cv2.imshow() method 
