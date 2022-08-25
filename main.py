@@ -128,6 +128,7 @@ def make_vinyl(img, size):
 def main():
     blur = 20
     vinyl_size = 520
+    vinyl_center_y = 400
     # making alpha channel for glow
     glow = make_vinyl(image, vinyl_size)
     glow = cv2.copyMakeBorder(glow, blur, blur, blur, blur, cv2.BORDER_CONSTANT)
@@ -167,6 +168,7 @@ def main():
 
     res_vinyl = cv2.resize(vinyl_with_glow, (1,1))
     res_alpha = cv2.resize(glow_alpha, (1,1))
+    border_size = 200
 
 
     for i in range(video_len * fps):
@@ -179,12 +181,14 @@ def main():
             res_alpha = cv2.resize(glow_alpha, (1,1))
 
         if i > 24 and grow <= vinyl_with_glow.shape[0]:
-            print(vinyl_with_glow.shape[0])
-            print(grow)
+            # print(vinyl_with_glow.shape[0])
+            # print(grow)
             res_vinyl = cv2.resize(res_vinyl,(grow, grow))
             res_alpha = cv2.resize(glow_alpha, (grow, grow))
             grow += 15
-        composite = overlay(image3, res_vinyl, 1920,1080,200, res_alpha)
+        dist_from_top = vinyl_center_y - round(res_vinyl.shape[0]/2)
+        print("center pixel:", dist_from_top + round(res_vinyl.shape[0]/2))
+        composite = overlay(image3, res_vinyl, 1920,1080,dist_from_top, res_alpha)
         out.write(composite)
         # cv2.imshow(window_name, composite)
         # cv2.waitKey(0)
