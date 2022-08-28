@@ -12,7 +12,10 @@ image = cv2.imread(path)
 image2 = cv2.imread(path2)
 image3 = cv2.imread(path3)
 
-def easeOutCubic(x): 
+def easeOutQuad(x):
+    return 1 - (1 - x) * (1 - x)
+    
+def easeOutCubic(x):
     return 1 - pow(1 - x, 3)
 
 def brighten(img, bvalue, svalue):
@@ -95,7 +98,6 @@ def overlay(background, on_top, up_width, up_height, placey, alpha_channel):
 
 #creates vinyl with chosen image, can set to any size
 def make_vinyl(img, size):
-
     cover_resized = cv2.resize(img, (size, size))
 
     overlay = cv2.imread(path2, cv2.IMREAD_UNCHANGED)

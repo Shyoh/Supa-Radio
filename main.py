@@ -3,7 +3,10 @@ import cv2
 import math
 import numpy as np
 from scipy.ndimage import rotate
+from moviepy.editor import *
 import utils
+import os
+import subprocess
 
 # helpful constants
 all_white = np.full((1080, 1920, 3), 255)
@@ -11,7 +14,7 @@ all_white = np.full((1080, 1920, 3), 255)
 
 # video setings
 fps = 24
-video_len = 30
+video_len = 20
 
 def blur(img, size):
     # generating the kernel
@@ -37,7 +40,7 @@ def main():
     glow = cv2.resize(utils.image,(vinyl_size,vinyl_size))
     glow = cv2.copyMakeBorder(glow, blur, blur, blur, blur, cv2.BORDER_REFLECT)
     glow = cv2.blur(glow, (blur,blur))
-    glow = utils.brighten(glow, 40, 40)
+    glow = utils.brighten(glow, 60, 40)
 
     
 
@@ -86,16 +89,23 @@ def main():
             res_alpha = cv2.resize(glow_alpha, (eased_size, eased_size),interpolation = cv2.INTER_CUBIC)
             grow += 6
         dist_from_top = vinyl_center_y - round(res_vinyl.shape[0]/2)
-        print("center pixel:", dist_from_top + round(res_vinyl.shape[0]/2))
+        # print("center pixel:", dist_from_top + round(res_vinyl.shape[0]/2))
         composite = utils.overlay(utils.image3, res_vinyl, 1920,1080,dist_from_top, res_alpha)
         utils.place(composite, all_white, 0, 0, np.divide(res_animation_frame,all_white))
         out.write(composite)
     out.release 
-    # cv2.destroyAllWindows()
-    # composite = overlay(image3, composite, 1920, 1080, 200)
-    # cv2.imshow(window_name, composite)
-    # cv2.waitKey(0)
-    #     #closing all open windows 
-    # cv2.destroyAllWindows() 
+
+    
+
+    # videoclip = VideoFileClip("bahbahbahbah.mp4")
+    # audioclip = AudioFileClip("./videos/mercury.mp3")
+
+    # new_audioclip = CompositeAudioClip([audioclip])
+    # videoclip.audio = new_audioclip
+    # videoclip.write_videofile("finished_video.mp4")
+
+
 
 main()
+
+subprocess.run(["ffmpeg", "-i", "mercury.mp3", "-i", "bahbahbahbah.mp4", "final_video.mp4"])
