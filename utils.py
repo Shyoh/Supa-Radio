@@ -14,10 +14,23 @@ image3 = cv2.imread(path3)
 
 def easeOutQuad(x):
     return 1 - (1 - x) * (1 - x)
-    
+
 def easeOutCubic(x):
     return 1 - pow(1 - x, 3)
 
+def calculate_rotation_increment_ease(video_len, fps, curr_amt):
+    num_half_rotations = round(video_len / 15)
+    num_degrees =  num_half_rotations * 180
+    rot_amt = (num_degrees / video_len) / fps
+    amt_to_reach = easeOutQuad((curr_amt + rot_amt)/num_degrees) * num_degrees
+    return amt_to_reach
+
+def calculate_rotation_increment(video_len, fps):
+    num_half_rotations = round(video_len / 15)
+    num_degrees =  num_half_rotations * 180
+    return (num_degrees / video_len) / fps
+
+    
 def brighten(img, bvalue, svalue):
     hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 

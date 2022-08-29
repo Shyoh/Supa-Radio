@@ -1,11 +1,9 @@
-from turtle import back
+
 import cv2 
-import math
 import numpy as np
 from scipy.ndimage import rotate
 from moviepy.editor import *
 import utils
-import os
 import subprocess
 
 # helpful constants
@@ -14,7 +12,9 @@ all_white = np.full((1080, 1920, 3), 255)
 
 # video setings
 fps = 24
-video_len = 20
+video_len = 40 # video length in seconds
+rotate_increment = utils.calculate_rotation_increment(video_len, fps)
+
 
 def blur(img, size):
     # generating the kernel
@@ -76,9 +76,11 @@ def main():
         if success:
             res_animation_frame = next_animation_frame
 
-        rotamt -= .5
-        res_vinyl = rotate(vinyl_with_glow, rotamt, reshape=False)
+        rotamt += rotate_increment
+        rot_ease_amt = utils.calculate_rotation_increment_ease(video_len, fps, rotamt)
+        res_vinyl = rotate(vinyl_with_glow, -rot_ease_amt, reshape=False)
         res_alpha = glow_alpha
+
         if i <= 24:
             res_vinyl = cv2.resize(res_vinyl,(1,1),interpolation=cv2.INTER_AREA)
             res_alpha = cv2.resize(glow_alpha, (1,1),interpolation=cv2.INTER_AREA)
