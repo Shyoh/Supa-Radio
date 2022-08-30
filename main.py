@@ -2,9 +2,9 @@
 import cv2 
 import numpy as np
 from scipy.ndimage import rotate
-from moviepy.editor import *
 import utils
 import subprocess
+
 
 # helpful constants
 all_white = np.full((1080, 1920, 3), 255)
@@ -12,7 +12,7 @@ all_white = np.full((1080, 1920, 3), 255)
 
 # video setings
 fps = 24
-video_len = 40 # video length in seconds
+video_len = 10 # video length in seconds
 rotate_increment = utils.calculate_rotation_increment(video_len, fps)
 
 
@@ -58,7 +58,7 @@ def main():
     size = (1920,1080)
 
     rot = vinyl_with_glow
-    out = cv2.VideoWriter('bahbahbahbah.mp4',cv2.VideoWriter_fourcc(*'DIVX'), 24, size)
+    out = cv2.VideoWriter('video_no_audio.mp4',cv2.VideoWriter_fourcc(*'DIVX'), 24, size)
     
     rotamt = 0
     grow = 1
@@ -108,6 +108,11 @@ def main():
 
 
 
-main()
 
-subprocess.run(["ffmpeg", "-i", "mercury.mp3", "-i", "bahbahbahbah.mp4", "final_video.mp4"])
+
+
+# main()
+
+# subprocess.run(["ffmpeg", "-y", "-i", "mercury.mp3", "-i", "bahbahbahbah.mp4", "final_video.mp4"])
+
+# subprocess.run(["rm", "bahbahbahbah.mp4"])
