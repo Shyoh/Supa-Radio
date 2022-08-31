@@ -4,37 +4,61 @@ from ctypes import resize
 from pickle import FALSE
 import tkinter as tk
 from tkinter.messagebox import showinfo
+from turtle import back
 from PIL import ImageTk, Image
 from tkinter import Label, filedialog
 import main
 import subprocess
 
 
-def run():
-    main.main()
-    subprocess.run(["ffmpeg", "-y", "-i", "mercury.mp3", "-i", "video_no_audio.mp4", "final_video.mp4"])
-    subprocess.run(["rm", "video_no_audio.mp4"])
+initialdir='/'
 
-def select_picture():
+song = ''
+vinylpic = ''
+backgroundpic = ''
+
+
+def run():
+    if song:
+        main.main(vinylpic, backgroundpic)
+        subprocess.run(["ffmpeg", "-y", "-i", str(song), "-i", "video_no_audio.mp4", "final_video.mp4"])
+        subprocess.run(["rm", "video_no_audio.mp4"])
+
+def select_vinyl():
     filetypes = (
         ('png files', '*.png'),
         ('jpeg files', '*.jpeg')
     )
 
-    filename = filedialog.askopenfilename(
+    global vinylpic
+
+    vinylpic = filedialog.askopenfilename(
         title='Open a file',
         initialdir='/',
         filetypes=filetypes)
 
-    # showinfo(
-    #     title='Selected File',
-    #     message=filename
-    # )
+    showinfo(
+        title='Selected File',
+        message='Vinyl Picture selected'
+    )
 
-    return filename
+def select_bg():
+    filetypes = (
+        ('png files', '*.png'),
+        ('jpeg files', '*.jpeg')
+    )
 
-    
+    global backgroundpic
 
+    backgroundpic = filedialog.askopenfilename(
+        title='Open a file',
+        initialdir='/',
+        filetypes=filetypes)
+
+    showinfo(
+        title='Selected File',
+        message='Background selected'
+    )
 
 def select_song():
     filetypes = (
@@ -42,21 +66,23 @@ def select_song():
         ('wav files', '*.wav')
     )
 
-    filename = filedialog.askopenfilename(
+    global song
+
+    song = filedialog.askopenfilename(
         title='Open a file',
         initialdir='/',
         filetypes=filetypes)
 
     showinfo(
         title='Selected File',
-        message=filename
+        message=song
     )
 
-    return filename
+def save_file():
+    f = filedialog.asksaveasfile(initialfile = 'Untitled.txt',
+    defaultextension=".mp4",filetypes=[("All Files","*.*"),("Text Documents","*.txt")])
 
-def UploadAction(event=None):
-    filename = filedialog.askopenfilename(filetypes=[("*.png")])
-    print('Selected:', filename)
+    return f
 
 # creating main window
 root = tk.Tk()
@@ -84,38 +110,35 @@ VinylText = Label(root, text = 'Choose Vinyl Picture')
 VinylText.place(x=650,y=125)
 VinylText.configure(bg="black")
 
-vinylpic = select_picture
-chooseVinyl = tk.Button(root, bg='white', text='Open file', command=vinylpic, border=-2, width=15)
+chooseVinyl = tk.Button(root, bg='white', text='Open file', command=lambda:select_vinyl(), border=-2, width=15)
 chooseVinyl.place(x=630,y=150)
 
 
 #Get the background picture
-VinylText = Label(root, text = 'Choose Background Picture')
-VinylText.place(x=630,y=225)
-VinylText.configure(bg="black")
+BgText = Label(root, text = 'Choose Background Picture')
+BgText.place(x=630,y=225)
+BgText.configure(bg="black")
 
-backgroundpic = select_picture
-chooseBg = tk.Button(root, bg='white', text='Open file', command=backgroundpic, border=-2, width=15)
+chooseBg = tk.Button(root, bg='white', text='Open file', command=lambda:select_bg(), border=-2, width=15)
 chooseBg.place(x=630,y=250)
 
 
 #Get the song
-VinylText = Label(root, text = 'Choose song')
-VinylText.place(x=670,y=325)
-VinylText.configure(bg="black",)
+SongText = Label(root, text = 'Choose song')
+SongText.place(x=670,y=325)
+SongText.configure(bg="black")
 
-song = select_song
-chooseSong = tk.Button(root, bg='white', text='Open file', command=song, border=-2, width=15)
+chooseSong = tk.Button(root, bg='white', text='Open file', command=lambda:select_song(), border=-2, width=15)
 chooseSong.place(x=630,y=350)
 
 
-#Choose directory
-VinylText = Label(root, text = 'Choose directory')
-VinylText.place(x=660,y=425)
-VinylText.configure(bg="black",)
 
-path =  filedialog.askdirectory
-RunProgram = tk.Button(root, bg='black', text='Open Directory', command=path, border=-2, width=15)
+#Choose directory
+DirText = Label(root, text = 'Choose directory')
+DirText.place(x=660,y=425)
+DirText.configure(bg="black")
+
+RunProgram = tk.Button(root, bg='black', text='Open Directory', command=lambda:save_file, border=-2, width=15)
 RunProgram.place(x=630,y=450)
 
 #Run the program

@@ -10,6 +10,7 @@ import subprocess
 all_white = np.full((1080, 1920, 3), 255)
 
 
+
 # video setings
 fps = 24
 video_len = 10 # video length in seconds
@@ -22,22 +23,28 @@ def blur(img, size):
     img[int((size-1)/2), :] = np.ones(size)
     img = img / size
 
-def main():
+def main(vimg, bgimg):
+    image = cv2.imread(r'{0}'.format(vimg))
+    image3 = cv2.imread(r'{0}'.format(bgimg))
+
+    print('vinyl', image)
+    print('bg', image3)
+
 
     # resize background image
-    utils.image3 = cv2.resize(utils.image3,(1920,1080), interpolation= cv2.INTER_LINEAR)
-    utils.place(utils.image3,all_white,0,0,np.full((1080, 1920, 3), .3))
+    image3 = cv2.resize(image3,(1920,1080), interpolation= cv2.INTER_LINEAR)
+    utils.place(image3,all_white,0,0,np.full((1080, 1920, 3), .3))
 
     blur = 13
     vinyl_size = 517
     vinyl_center_y = 400
     # making alpha channel for glow
-    glow = utils.make_vinyl(utils.image, vinyl_size)
+    glow = utils.make_vinyl(image, vinyl_size)
     glow = cv2.copyMakeBorder(glow, blur, blur, blur, blur, cv2.BORDER_CONSTANT)
     glow_alpha = utils.get_alpha(glow)
     glow_alpha = cv2.blur(glow_alpha, (blur,blur))
     # change glow back to full image, not circle cropped
-    glow = cv2.resize(utils.image,(vinyl_size,vinyl_size))
+    glow = cv2.resize(image,(vinyl_size,vinyl_size))
     glow = cv2.copyMakeBorder(glow, blur, blur, blur, blur, cv2.BORDER_REFLECT)
     glow = cv2.blur(glow, (blur,blur))
     glow = utils.brighten(glow, 60, 40)
@@ -45,7 +52,7 @@ def main():
     
 
     
-    vinyl = utils.make_vinyl(utils.image, 500)
+    vinyl = utils.make_vinyl(image, 500)
 
     vinyl_with_glow = utils.overlay(glow, vinyl, vinyl_size,vinyl_size,10, utils.get_alpha(vinyl))
     vinyl_with_glow = cv2.copyMakeBorder(vinyl_with_glow, blur, blur, blur, blur, cv2.BORDER_REFLECT)
@@ -92,7 +99,7 @@ def main():
             grow += 6
         dist_from_top = vinyl_center_y - round(res_vinyl.shape[0]/2)
         # print("center pixel:", dist_from_top + round(res_vinyl.shape[0]/2))
-        composite = utils.overlay(utils.image3, res_vinyl, 1920,1080,dist_from_top, res_alpha)
+        composite = utils.overlay(image3, res_vinyl, 1920,1080,dist_from_top, res_alpha)
         utils.place(composite, all_white, 0, 0, np.divide(res_animation_frame,all_white))
         out.write(composite)
     out.release 

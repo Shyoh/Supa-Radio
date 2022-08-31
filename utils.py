@@ -3,14 +3,13 @@ import math
 import numpy as np
 
 # paths
-path = r'./pictures/mercury.jpeg'
 path2 = r'./pictures/vinyl_overlay.png'
-path3 = r'./pictures/bgimg.jpeg'
+
 
 # Reading in images
-image = cv2.imread(path)
 image2 = cv2.imread(path2)
-image3 = cv2.imread(path3)
+
+
 
 def easeOutQuad(x):
     return 1 - (1 - x) * (1 - x)
@@ -84,6 +83,8 @@ def place(bgimg, overlay, x, y, alpha):
     #                 bgimg[y + j][x + i] = new_value
                 # else:
                 #     print("x + i : {}, y + j: {}".format(x+i, y +j))
+
+
 
 #composites image over a background
 def overlay(background, on_top, up_width, up_height, placey, alpha_channel):
