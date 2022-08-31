@@ -23,12 +23,10 @@ def blur(img, size):
     img[int((size-1)/2), :] = np.ones(size)
     img = img / size
 
-def main(vimg, bgimg):
+def main(vimg, bgimg, dir):
     image = cv2.imread(r'{0}'.format(vimg))
     image3 = cv2.imread(r'{0}'.format(bgimg))
 
-    print('vinyl', image)
-    print('bg', image3)
 
 
     # resize background image
@@ -65,7 +63,7 @@ def main(vimg, bgimg):
     size = (1920,1080)
 
     rot = vinyl_with_glow
-    out = cv2.VideoWriter('video_no_audio.mp4',cv2.VideoWriter_fourcc(*'DIVX'), 24, size)
+    out = cv2.VideoWriter("{0}/video_no_audio.mp4".format(dir),cv2.VideoWriter_fourcc(*'DIVX'), 24, size)
     
     rotamt = 0
     grow = 1

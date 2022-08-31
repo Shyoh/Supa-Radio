@@ -9,20 +9,24 @@ from PIL import ImageTk, Image
 from tkinter import Label, filedialog
 import main
 import subprocess
+import os
 
 
-initialdir='/'
+currentdir='/'
+finaldir = ''
 
 song = ''
 vinylpic = ''
 backgroundpic = ''
+save_file_dir = ''
+
 
 
 def run():
     if song:
-        main.main(vinylpic, backgroundpic)
-        subprocess.run(["ffmpeg", "-y", "-i", str(song), "-i", "video_no_audio.mp4", "final_video.mp4"])
-        subprocess.run(["rm", "video_no_audio.mp4"])
+        main.main(vinylpic, backgroundpic, finaldir)
+        subprocess.run(["ffmpeg", "-y", "-i", str(song), "-i", "{0}/video_no_audio.mp4".format(finaldir), str(save_file_dir)])
+        subprocess.run(["rm", "{0}/video_no_audio.mp4".format(finaldir)])
 
 def select_vinyl():
     filetypes = (
@@ -31,15 +35,18 @@ def select_vinyl():
     )
 
     global vinylpic
+    global currentdir
 
     vinylpic = filedialog.askopenfilename(
         title='Open a file',
-        initialdir='/',
+        initialdir=currentdir,
         filetypes=filetypes)
+    
+    currentdir = vinylpic
 
     showinfo(
         title='Selected File',
-        message='Vinyl Picture selected'
+        message=vinylpic
     )
 
 def select_bg():
@@ -49,15 +56,18 @@ def select_bg():
     )
 
     global backgroundpic
+    global currentdir
 
     backgroundpic = filedialog.askopenfilename(
         title='Open a file',
-        initialdir='/',
+        initialdir=currentdir,
         filetypes=filetypes)
+
+    currentdir = backgroundpic
 
     showinfo(
         title='Selected File',
-        message='Background selected'
+        message=backgroundpic
     )
 
 def select_song():
@@ -67,11 +77,14 @@ def select_song():
     )
 
     global song
+    global currentdir
 
     song = filedialog.askopenfilename(
         title='Open a file',
-        initialdir='/',
+        initialdir=currentdir,
         filetypes=filetypes)
+    
+    currentdir = song
 
     showinfo(
         title='Selected File',
@@ -79,10 +92,20 @@ def select_song():
     )
 
 def save_file():
-    f = filedialog.asksaveasfile(initialfile = 'Untitled.txt',
-    defaultextension=".mp4",filetypes=[("All Files","*.*"),("Text Documents","*.txt")])
+    global save_file_dir
+    global currentdir
+    global finaldir
+    save_file_dir = filedialog.asksaveasfilename(
+        defaultextension=".mp4",
+        initialdir=currentdir,
+        initialfile="Untitled.mp4",
+        title="Save File"
+        )
 
-    return f
+    currentdir = save_file_dir
+    finaldir = os.path.dirname(save_file_dir)
+
+
 
 # creating main window
 root = tk.Tk()
@@ -138,7 +161,7 @@ DirText = Label(root, text = 'Choose directory')
 DirText.place(x=660,y=425)
 DirText.configure(bg="black")
 
-RunProgram = tk.Button(root, bg='black', text='Open Directory', command=lambda:save_file, border=-2, width=15)
+RunProgram = tk.Button(root, bg='black', text='Open Directory', command=lambda:save_file(), border=-2, width=15)
 RunProgram.place(x=630,y=450)
 
 #Run the program
