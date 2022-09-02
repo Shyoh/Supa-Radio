@@ -7,9 +7,11 @@ from tkinter.messagebox import showinfo
 from turtle import back
 from PIL import ImageTk, Image
 from tkinter import Label, filedialog
+from pathlib import Path
 import main
 import subprocess
 import os
+import upload_video
 
 
 currentdir='/'
@@ -23,10 +25,18 @@ save_file_dir = ''
 
 
 def run():
-    if song:
-        main.main(vinylpic, backgroundpic, finaldir)
-        subprocess.run(["ffmpeg", "-y", "-i", str(song), "-i", "{0}/video_no_audio.mp4".format(finaldir), str(save_file_dir)])
-        subprocess.run(["rm", "{0}/video_no_audio.mp4".format(finaldir)])
+    # if song:
+        # main.main(vinylpic, backgroundpic, finaldir)
+        # subprocess.run(["ffmpeg", "-y", "-i", str(song), "-i", "{0}/video_no_audio.mp4".format(finaldir), str(save_file_dir)])
+        # subprocess.run(["rm", "{0}/video_no_audio.mp4".format(finaldir)])
+        video_data = {
+            "file": '/Users/sayo/Desktop/Test supa radio/Youtube_upload_test.mp4',
+            "title": Path('/Users/sayo/Desktop/Test supa radio/Youtube_upload_test.mp4').stem,
+            "description": "SupaSounds test",
+            "keywords":"radio,music",
+            "privacyStatus":"private",
+        }
+        upload_video.upload_video(video_data= video_data)
 
 def select_vinyl():
     filetypes = (
